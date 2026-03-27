@@ -45,6 +45,9 @@ Use these keywords to trigger specific workflows:
 | `ultrawork` | `uw` | Maximum-effort deep work session |
 | `ralph` | `ra` | Review → Analyze → Logic → Plan → Hack |
 | `team` | `tm` | Explicit team assembly with role assignment |
+| `dualforge` | `df` | Run task in both Claude + Codex, merge best results |
+| `양쪽에서 해봐` | `dual` | Same as dualforge (Korean trigger) |
+| `비교해서 해봐` | `forge` | Same as dualforge (Korean trigger) |
 | `save` | `sv` | Save current session state |
 | `continue` | `ct` | Resume from last saved session |
 | `handoff codex` | `hc` | Hand off current work to Codex CLI |
@@ -187,6 +190,31 @@ Pipeline:
 Best for: When you know exactly which agents you need.
 
 Usage: "team: architect, security, test-engineer - design auth system"
+
+### dualforge (Dual-Tool Forge)
+Best for: Critical tasks where you want the best of both Claude and Codex.
+
+Triggers: `dualforge`, `dual`, `forge`, `양쪽에서 해봐`, `둘 다 해봐`, `비교해서 해봐`
+
+Pipeline:
+1. **Decompose**: Split request into Claude-optimised prompt (architecture/security/design) and Codex-optimised prompt (implementation/code/performance)
+2. **Claude Execute**: architect(opus) + code-reviewer analyse from design perspective
+3. **Codex Execute**: executor + test-engineer implement from practical perspective
+4. **Synthesize**: analyst(opus) + critic merge both outputs:
+   - **Agreed Points**: High-confidence recommendations both tools agree on
+   - **Conflicts**: Each tool's position + reasoned resolution
+   - **Merged Result**: Claude's design + Codex's implementation unified
+   - **Action Checklist**: Concrete next steps
+
+Merge principles:
+| Domain | Preferred Tool | Reason |
+|--------|---------------|--------|
+| Architecture/Design | Claude | Deep reasoning |
+| Security/Edge cases | Claude | Thorough analysis |
+| Code implementation | Codex | Practical code generation |
+| Performance tuning | Codex | Benchmark-driven |
+| Test code | Codex | Parallel test writing |
+| Trade-off decisions | Claude | Evidence-based reasoning |
 
 ---
 

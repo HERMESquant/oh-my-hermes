@@ -20,3 +20,4 @@ export type { SetupOptions, OmhConfig } from './installer/setup.js';
 export * from './installer/template-engine.js';
 export * from './team/agents.js';
 export * from './team/router.js';
+export * from './team/dual-forge.js';

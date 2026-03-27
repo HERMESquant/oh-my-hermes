@@ -97,8 +97,63 @@ Works in **both** Claude Code and Codex CLI:
 | `ultrawork` / `ulw` | Max parallelism | Multiple executors in parallel |
 | `ralph` / `don't stop` | Run until done | executor → verifier infinite loop |
 | `team N` | N-agent collaboration | N executors + verifier |
+| `dualforge` / `양쪽에서 해봐` | **Both tools work, merge best** | Claude(design) + Codex(impl) → synthesize |
 
-### 5. Smart Tool Routing
+### 5. DualForge (Dual-Tool Merge)
+
+**The killer feature.** Inspired by OMC's `ccg` (tri-model advisor).
+
+```
+dualforge 이 API의 인증 시스템 설계하고 구현해줘
+```
+
+How it works:
+
+```
+User Request
+    ↓
+┌─────────── Decompose ───────────┐
+│  Claude Prompt    Codex Prompt  │
+│  (design/arch)   (impl/perf)   │
+└─────────────────────────────────┘
+    ↓                    ↓
+┌─────────┐      ┌─────────────┐
+│ Claude  │      │   Codex     │
+│ (opus)  │      │ (parallel)  │
+│ Design  │      │ Implement   │
+│ Security│      │ Test        │
+│ Tradeoff│      │ Performance │
+└─────────┘      └─────────────┘
+    ↓                    ↓
+┌─────────────────────────────────┐
+│          Synthesize             │
+│  ✅ Agreed: high-confidence     │
+│  ⚡ Conflicts: resolved         │
+│  🔀 Merged: best of both       │
+│  📋 Action checklist            │
+└─────────────────────────────────┘
+```
+
+**Merge principles:**
+- Architecture/design decisions → Claude wins (deep reasoning)
+- Code implementation → Codex wins (practical code)
+- Security/edge cases → Claude wins (thorough analysis)
+- Performance tuning → Codex wins (benchmark-driven)
+
+**CLI usage:**
+```bash
+omh forge "design auth system"          # Start a forge session
+omh forge-merge forge-2026-03-27_14-30  # Merge after both tools complete
+```
+
+**Keyword usage (inside Claude Code or Codex):**
+```
+dualforge 이 API 설계하고 구현해줘
+양쪽에서 해봐 인증 시스템
+비교해서 해봐 성능 최적화
+```
+
+### 6. Smart Tool Routing
 
 OMH automatically assigns work to the best tool:
 
@@ -111,7 +166,7 @@ OMH automatically assigns work to the best tool:
 | Documentation | **Claude** | Natural language strength |
 | Large refactoring | **Codex** | Multi-file simultaneous edits |
 
-### 6. 28+ Agent Catalog
+### 7. 28+ Agent Catalog
 
 | Category | Agents | Models |
 |----------|--------|--------|
@@ -133,6 +188,8 @@ Commands:
   continue    Continue last session
   handoff     Handoff from one tool to another (claude|codex)
   sessions    List all sessions
+  forge       DualForge: run task in both tools, merge results
+  forge-merge Merge DualForge results after both tools complete
   version     Show version
 
 Options:

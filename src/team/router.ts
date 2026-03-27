@@ -40,6 +40,11 @@ export interface RoutingResult {
 // Maps keywords (English + Korean) to canonical request types.
 
 const KEYWORD_MAP: Record<string, string[]> = {
+  dualforge: [
+    'dualforge', 'dual forge', 'dual', 'forge', 'both tools', 'compare both',
+    '양쪽에서 해봐', '둘 다 해봐', '비교해서 해봐', '양쪽에서', '둘 다',
+    'ccg', 'tri-model', '병합해서', '합쳐서', '장점만',
+  ],
   architecture: [
     'architect', 'architecture', 'design', 'system design', 'component',
     'diagram', 'structure', '설계', '아키텍처', '구조',
@@ -96,6 +101,36 @@ interface TeamTemplate {
 }
 
 const TEAM_TEMPLATES: Record<string, TeamTemplate> = {
+  dualforge: {
+    phases: [
+      {
+        phase: 'decompose',
+        tool: 'claude',
+        agentNames: ['planner'],
+        reason: 'Decompose request into Claude-optimised and Codex-optimised prompts.',
+      },
+      {
+        phase: 'claude-execute',
+        tool: 'claude',
+        agentNames: ['architect', 'code-reviewer'],
+        reason: 'Claude analyses architecture, security, design trade-offs (opus reasoning).',
+      },
+      {
+        phase: 'codex-execute',
+        tool: 'codex',
+        agentNames: ['api-architect', 'perf-engineer', 'test-engineer'],
+        reason: 'Codex generates implementation, code, tests (parallel execution).',
+      },
+      {
+        phase: 'synthesize',
+        tool: 'claude',
+        agentNames: ['analyst', 'critic'],
+        reason: 'Claude merges both outputs: agreed points, conflicts, final merged result.',
+      },
+    ],
+    workflow: 'dualforge',
+  },
+
   architecture: {
     phases: [
       {

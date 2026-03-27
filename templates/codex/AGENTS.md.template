@@ -188,6 +188,19 @@ Best for: When you know exactly which agents you need.
 
 Usage: "team: architect, security, test-engineer - design auth system"
 
+### dualforge / $dualforge (Dual-Tool Forge)
+Best for: Critical tasks where you want the best of both Claude and Codex.
+
+Triggers: `$dualforge`, `$dual`, `$forge`, `양쪽에서 해봐`, `둘 다 해봐`, `비교해서 해봐`
+
+Pipeline:
+1. **Decompose**: Split request into Claude-optimised and Codex-optimised prompts
+2. **Claude Execute**: Architecture/security/design analysis (opus reasoning)
+3. **Codex Execute**: Implementation/code/performance/tests (parallel agents)
+4. **Synthesize**: Merge both outputs — agreed points, conflicts with resolutions, final merged result, action checklist
+
+Artifacts stored at: `.omh/dualforge/{forge-id}/`
+
 ---
 
 ## Codex-Specific Conventions

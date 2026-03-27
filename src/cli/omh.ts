@@ -197,6 +197,98 @@ async function handleSessions(): Promise<void> {
   }
 }
 
+async function handleForge(task: string): Promise<void> {
+  const projectDir = await getProjectRoot();
+  const {
+    createForgeSession,
+    decomposeRequest,
+    saveForgeArtifact,
+    generateSynthesisPrompt,
+    generateForgeReport,
+  } = await import('../team/dual-forge.js');
+
+  console.log(chalk.bold.cyan('DualForge: Claude + Codex parallel execution\n'));
+
+  // 1. Create forge session
+  const session = await createForgeSession(projectDir, task);
+  console.log(chalk.dim(`Forge ID: ${session.id}\n`));
+
+  // 2. Decompose
+  const prompts = decomposeRequest(task);
+  console.log(chalk.underline('Phase 1: Request Decomposed'));
+  console.log(chalk.dim(`  Claude prompt: ${prompts.claudePrompt.slice(0, 80)}...`));
+  console.log(chalk.dim(`  Codex prompt:  ${prompts.codexPrompt.slice(0, 80)}...`));
+  console.log('');
+
+  // 3. Show instructions for manual execution
+  console.log(chalk.underline('Phase 2: Execute in both tools'));
+  console.log('');
+  console.log(chalk.yellow('  Run these prompts in each tool:'));
+  console.log('');
+  console.log(chalk.magenta('  [Claude Code]'));
+  console.log(chalk.dim(`  Paste the Claude prompt from: .omh/dualforge/${session.id}/claude-prompt.md`));
+  console.log('');
+  console.log(chalk.green('  [Codex CLI]'));
+  console.log(chalk.dim(`  Paste the Codex prompt from: .omh/dualforge/${session.id}/codex-prompt.md`));
+  console.log('');
+
+  // Save prompts as files for easy access
+  await saveForgeArtifact(projectDir, session.id, 'claude', prompts.claudePrompt);
+  await saveForgeArtifact(projectDir, session.id, 'codex', prompts.codexPrompt);
+
+  console.log(chalk.underline('Phase 3-4: Collect & Synthesize'));
+  console.log(chalk.dim('  After both tools complete, save their outputs to:'));
+  console.log(chalk.dim(`    .omh/dualforge/${session.id}/claude-result.md`));
+  console.log(chalk.dim(`    .omh/dualforge/${session.id}/codex-result.md`));
+  console.log(chalk.dim(`  Then run: omh forge-merge ${session.id}`));
+  console.log('');
+
+  console.log(chalk.green(`Forge session created: ${session.id}`));
+  console.log(chalk.dim('Tip: In Claude Code, use the keyword "dualforge" or "양쪽에서 해봐" to auto-execute.'));
+}
+
+async function handleForgeMerge(forgeId: string): Promise<void> {
+  const projectDir = await getProjectRoot();
+  const {
+    loadForgeArtifacts,
+    generateSynthesisPrompt,
+    generateForgeReport,
+    loadForgeSession,
+  } = await import('../team/dual-forge.js');
+
+  const session = await loadForgeSession(projectDir, forgeId);
+  if (!session) {
+    console.error(chalk.red(`Forge session "${forgeId}" not found.`));
+    process.exitCode = 1;
+    return;
+  }
+
+  const artifacts = await loadForgeArtifacts(projectDir, forgeId);
+  const claudeArtifact = artifacts.find((a) => a.filepath.includes('claude-result'));
+  const codexArtifact = artifacts.find((a) => a.filepath.includes('codex-result'));
+
+  if (!claudeArtifact || !codexArtifact) {
+    console.error(chalk.red('Missing artifacts. Ensure both claude-result.md and codex-result.md exist.'));
+    console.log(chalk.dim(`Expected at: .omh/dualforge/${forgeId}/`));
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log(chalk.bold.cyan('DualForge: Synthesising results...\n'));
+
+  const synthesisPrompt = generateSynthesisPrompt(
+    session.request,
+    claudeArtifact.content,
+    codexArtifact.content,
+  );
+
+  console.log(chalk.underline('Synthesis Prompt (paste into Claude Code or Codex):'));
+  console.log('');
+  console.log(synthesisPrompt);
+  console.log('');
+  console.log(chalk.green('Copy the above prompt and paste it into your preferred AI tool.'));
+}
+
 // ── Programme definition ─────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
@@ -243,6 +335,16 @@ async function main(): Promise<void> {
     .command('sessions')
     .description('List all sessions')
     .action(handleSessions);
+
+  program
+    .command('forge <task>')
+    .description('DualForge: run task in both Claude + Codex, then merge results')
+    .action(handleForge);
+
+  program
+    .command('forge-merge <forgeId>')
+    .description('Merge DualForge results after both tools have completed')
+    .action(handleForgeMerge);
 
   await program.parseAsync(process.argv);
 }
