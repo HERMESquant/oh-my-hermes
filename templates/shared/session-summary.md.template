@@ -1,0 +1,56 @@
+# Session Summary - {{date}}
+
+## Tool: {{tool}}
+## Project: {{project}}
+## Session ID: {{sessionId}}
+## Duration: {{duration}}
+
+---
+
+### Completed
+{{#tasksCompleted}}
+- {{.}}
+{{/tasksCompleted}}
+
+### Pending
+{{#tasksPending}}
+- {{.}}
+{{/tasksPending}}
+
+### Files Modified
+{{#filesModified}}
+- {{.}}
+{{/filesModified}}
+
+### Files Created
+{{#filesCreated}}
+- {{.}}
+{{/filesCreated}}
+
+### Decisions
+{{#decisions}}
+- {{.}}
+{{/decisions}}
+
+### Agents Used
+{{#agentsUsed}}
+- **{{name}}** ({{model}}): {{contribution}}
+{{/agentsUsed}}
+
+### Workflow Used
+- **Workflow**: {{workflow}}
+- **Complexity**: {{complexity}}
+
+### Errors / Issues
+{{#errors}}
+- {{.}}
+{{/errors}}
+
+### Next Steps
+{{#nextSteps}}
+- {{.}}
+{{/nextSteps}}
+
+---
+
+*Saved at {{savedAt}} by oh-my-hermes v{{omhVersion}}*

@@ -1,0 +1,97 @@
+# Handoff Document
+
+## From: {{sourceTool}}
+## To: {{targetTool}}
+## Project: {{project}}
+## Date: {{date}}
+
+---
+
+## Context
+
+{{contextSummary}}
+
+---
+
+## Current State
+
+### What Was Done
+{{#completedWork}}
+- {{.}}
+{{/completedWork}}
+
+### What Remains
+{{#pendingWork}}
+- [ ] {{.}}
+{{/pendingWork}}
+
+---
+
+## Key Decisions Made
+{{#decisions}}
+- **{{title}}**: {{description}}
+{{/decisions}}
+
+---
+
+## Files to Focus On
+{{#keyFiles}}
+- `{{path}}` - {{reason}}
+{{/keyFiles}}
+
+---
+
+## Architecture Notes
+
+{{architectureNotes}}
+
+---
+
+## Active Agents (from source session)
+{{#activeAgents}}
+- **{{name}}** ({{model}}): {{lastAction}}
+{{/activeAgents}}
+
+---
+
+## Recommended Agents (for target tool)
+{{#recommendedAgents}}
+- **{{name}}** ({{model}}): {{reason}}
+{{/recommendedAgents}}
+
+---
+
+## Recommended Workflow
+
+**Workflow**: {{recommendedWorkflow}}
+**Reason**: {{workflowReason}}
+
+---
+
+## Environment Notes
+
+- **Branch**: {{gitBranch}}
+- **Last Commit**: {{lastCommit}}
+- **Build Status**: {{buildStatus}}
+- **Test Status**: {{testStatus}}
+
+---
+
+## Warnings / Blockers
+{{#warnings}}
+- {{.}}
+{{/warnings}}
+
+---
+
+## Shared Memory References
+
+The following shared memory files contain relevant context:
+{{#sharedMemoryFiles}}
+- `.omh/shared-memory/{{.}}`
+{{/sharedMemoryFiles}}
+
+---
+
+*Generated at {{generatedAt}} by oh-my-hermes v{{omhVersion}}*
+*Handoff: {{sourceTool}} -> {{targetTool}}*

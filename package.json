@@ -1,0 +1,72 @@
+{
+  "name": "oh-my-hermes",
+  "version": "0.1.0",
+  "description": "Unified multi-agent orchestration for Claude Code + Codex CLI. One setup, both tools, seamless handoff.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "oh-my-hermes": "dist/cli/omh.js",
+    "omh": "dist/cli/omh.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli/omh.js",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist/",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "claude",
+    "codex",
+    "ai",
+    "agent",
+    "orchestration",
+    "multi-agent",
+    "claude-code",
+    "codex-cli",
+    "oh-my-claudecode",
+    "oh-my-codex",
+    "hermes"
+  ],
+  "author": "husfs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/husfs/oh-my-hermes.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "glob": "^10.3.0",
+    "inquirer": "^9.2.0"
+  },
+  "peerDependencies": {
+    "oh-my-claude-sisyphus": ">=4.0.0",
+    "oh-my-codex": ">=0.10.0"
+  },
+  "peerDependenciesMeta": {
+    "oh-my-claude-sisyphus": {
+      "optional": true
+    },
+    "oh-my-codex": {
+      "optional": true
+    }
+  },
+  "files": [
+    "dist/",
+    "templates/",
+    "agents/",
+    "skills/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2"
+  }
+}
