@@ -10,6 +10,7 @@ import { access, readFile, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { execSync } from 'node:child_process';
 import { constants as fsConstants } from 'node:fs';
+import { platform } from 'node:os';
 
 import {
   OMH_DIR,
@@ -170,6 +171,53 @@ export async function detectExistingSetup(projectDir: string): Promise<ExistingS
   return { hasOmh, hasClaude, hasCodex, hasOmc, hasOmx, hasClaudeMd, hasAgentsMd };
 }
 
+// ─── Auto-install ───────────────────────────────────────────────────────────
+
+/** npm package names for the orchestration layers. */
+const INSTALL_PACKAGES: Record<string, string> = {
+  omc: 'oh-my-claude-sisyphus',
+  omx: 'oh-my-codex',
+};
+
+export interface InstallResult {
+  tool: string;
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Attempt to install a missing orchestration tool globally via npm.
+ * Returns an `InstallResult` describing the outcome.
+ */
+export function installTool(tool: 'omc' | 'omx'): InstallResult {
+  const pkg = INSTALL_PACKAGES[tool];
+  try {
+    execSync(`npm install -g ${pkg}`, { stdio: 'pipe', timeout: 120_000 });
+    return { tool, success: true, message: `Installed ${pkg} globally.` };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { tool, success: false, message: `Failed to install ${pkg}: ${msg}` };
+  }
+}
+
+/**
+ * Check which orchestration tools are missing and install them.
+ * Only installs tools whose corresponding base CLI is present
+ * (e.g. omc requires claude, omx requires codex).
+ */
+export function autoInstallMissingTools(tools: DetectedTools): InstallResult[] {
+  const results: InstallResult[] = [];
+
+  if (tools.claude && !tools.omc) {
+    results.push(installTool('omc'));
+  }
+  if (tools.codex && !tools.omx) {
+    results.push(installTool('omx'));
+  }
+
+  return results;
+}
+
 // ─── Setup ──────────────────────────────────────────────────────────────────
 
 /**
@@ -204,6 +252,21 @@ export async function setup(
   report.actions.push(
     `Detected tools: claude=${tools.claude}, codex=${tools.codex}, omc=${tools.omc}, omx=${tools.omx}`,
   );
+
+  // ── Step 1.5: Auto-install missing orchestration tools ──────────────────
+  if (!options.nonInteractive) {
+    const installResults = autoInstallMissingTools(tools);
+    for (const r of installResults) {
+      if (r.success) {
+        report.actions.push(r.message);
+        // Refresh detection after install
+        if (r.tool === 'omc') tools.omc = true;
+        if (r.tool === 'omx') tools.omx = true;
+      } else {
+        report.warnings.push(r.message);
+      }
+    }
+  }
 
   // ── Step 2: Detect stack ────────────────────────────────────────────────
   const detectedStack = await detectStack(projectDir);

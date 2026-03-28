@@ -14,8 +14,8 @@ export * from './session/shared-memory.js';
 
 // installer/setup.ts re-declares some names from shared/detect.ts, so we
 // re-export selectively to avoid ambiguity.
-export { setup, doctor, showStatus } from './installer/setup.js';
-export type { SetupOptions, OmhConfig } from './installer/setup.js';
+export { setup, doctor, showStatus, autoInstallMissingTools, installTool } from './installer/setup.js';
+export type { SetupOptions, OmhConfig, InstallResult } from './installer/setup.js';
 
 export * from './installer/template-engine.js';
 export * from './team/agents.js';

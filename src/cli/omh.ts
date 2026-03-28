@@ -107,13 +107,30 @@ async function handleSetup(): Promise<void> {
     return;
   }
 
+  // Auto-install missing orchestration tools
+  const { autoInstallMissingTools } = await import('../installer/setup.js');
+  if ((!tools.omc && tools.claude) || (!tools.omx && tools.codex)) {
+    console.log(chalk.underline('Installing missing orchestration tools'));
+    const results = autoInstallMissingTools(tools);
+    for (const r of results) {
+      if (r.success) {
+        console.log(`  ${statusIcon(true)} ${r.message}`);
+        if (r.tool === 'omc') tools.omc = true;
+        if (r.tool === 'omx') tools.omx = true;
+      } else {
+        console.log(`  ${statusIcon(false)} ${r.message}`);
+      }
+    }
+    console.log('');
+  }
+
   // Run the full installer
   const selectedTools: ('claude' | 'codex')[] = [];
   if (tools.claude) selectedTools.push('claude');
   if (tools.codex) selectedTools.push('codex');
 
   const { setup: runSetup } = await import('../installer/setup.js');
-  await runSetup(projectDir, { tools: selectedTools });
+  await runSetup(projectDir, { tools: selectedTools, nonInteractive: true });
 
   console.log(chalk.green('\nSetup complete!'));
 }

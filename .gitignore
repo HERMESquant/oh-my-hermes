@@ -10,3 +10,4 @@ Thumbs.db
 .omh/sessions/
 .omh/shared-memory/
 .claude-logs/sessions/
+*.tgz
